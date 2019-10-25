@@ -1,6 +1,7 @@
 # Default output folder
 bin
 
+.settings
 *.out
 *.a
 *.asn1.[ch]
