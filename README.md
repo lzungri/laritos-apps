@@ -1,0 +1,2 @@
+# laritos-apps
+laritOS applications
