@@ -3,9 +3,15 @@
 #include <unistd.h>
 #include <time.h>
 #include <stdint.h>
+#include <stdlib.h>
 
 int main(void) {
     printf("Starting 'sleep' process");
+
+    // Pid 0 will always be READY
+    if (getpid() == 0) {
+        while(1);
+    }
 
     unsigned char i;
     for (i = 3; i < 6; i++) {
