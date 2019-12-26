@@ -3,6 +3,7 @@
 #include <unistd.h>
 #include <time.h>
 #include <stdint.h>
+#include <stdlib.h>
 
 int main(void) {
     printf("Starting 'sleep' process");
