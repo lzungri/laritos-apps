@@ -11,7 +11,7 @@ int main(void) {
     deadline.secs += 10 + 10 * getpid();
     do {
         time(&cur);
-        if (cur.secs != prev.secs) {
+        if (cur.secs >= prev.secs) {
             printf("time=%lu", (uint32_t) cur.secs);
             prev = cur;
         }
