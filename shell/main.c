@@ -5,18 +5,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
-
-#define MAX_ARGS 5
-#define MAX_CMD_LEN 128
-
-#define STATUS_TERMINATE 0xAABBCCDD
-
-typedef struct {
-    char *cmd;
-    int (*handler)(char *cmd, int argc, char **argv);
-    uint8_t minargs;
-    char *syntax;
-} builtin_t;
+#include "shell.h"
 
 
 static void welcome_message(void) {
@@ -47,19 +36,38 @@ static int parse_args(char *cmd, int *argc, char **argv) {
     return 0;
 }
 
-static int builtin_exit(char *cmd, int argc, char **argv) {
-    return STATUS_TERMINATE;
-}
-
-static int builtin_cd(char *cmd, int argc, char **argv) {
-    printf("Entering dir %s", argv[1]);
-    return 0;
-}
+static int builtin_help(char *cmd, int argc, char **argv);
 
 static builtin_t BUILTINS[] = {
-    { .cmd = "exit", .handler = builtin_exit },
-    { .cmd = "cd", .handler = builtin_cd, .minargs = 1, .syntax = "cd <dir>" },
+    { .cmd = "exit",
+        .handler = builtin_exit,
+        .help = "Quit the shell",
+    },
+    { .cmd = "pwd",
+        .handler = builtin_pwd,
+        .help = "Print name of current/working directory",
+    },
+    { .cmd = "cd",
+        .handler = builtin_cd,
+        .help = "Change  the  current  directory to dir",
+        .minargs = 1,
+        .syntax = "cd <dir>",
+    },
+    { .cmd = "help",
+        .handler = builtin_help,
+        .help = "Print this help message",
+    },
 };
+
+static int builtin_help(char *cmd, int argc, char **argv) {
+    printf("Builtins:");
+    int i;
+    for (i = 0; i < sizeof(BUILTINS) / sizeof(BUILTINS[0]); i++) {
+        builtin_t *b = &BUILTINS[i];
+        printf("  %-10.10s %s", b->cmd, b->help);
+    }
+    return 0;
+}
 
 static int dispatch_command(char *cmd, int argc, char **argv) {
     if (cmd == NULL || cmd[0] == '\0') {
