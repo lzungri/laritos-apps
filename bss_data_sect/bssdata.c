@@ -6,6 +6,9 @@ char datac[3] = { 1, 1, 1 };
 char datac2[3] = { 2, 2, 2 };
 char datac3[3] = { 3, 3, 3 };
 
+static int value = 5;
+static char *str = "HOLA";
+
 void func(void) {
     data[0] = 5;
     datac[0] = 6;
@@ -22,6 +25,9 @@ void func2(void) {
 }
 
 int main(void) {
+    printf("&value=0x%p, value=%d", &value, value);
+    printf("&str=0x%p, str=0x%p *str='%s'", &str, str, str);
+
     printf("original data[]   = { %u, %u, %u }", data[0], data[1], data[2]);
     printf("original datac[]  = { %u, %u, %u }", datac[0], datac[1], datac[2]);
     printf("original datac2[] = { %u, %u, %u }", datac2[0], datac2[1], datac2[2]);
