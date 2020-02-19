@@ -89,8 +89,8 @@ static int dispatch_command(char *cmd, int argc, char **argv) {
     return -1;
 }
 
-static inline void print_prompt(void) {
-    printf("$ ");
+static inline void print_prompt(int status) {
+    printf("[%d] $ ", status);
 }
 
 int main(void) {
@@ -101,10 +101,11 @@ int main(void) {
     int status = 0;
 
     while (status != STATUS_TERMINATE) {
-        print_prompt();
+        print_prompt(status);
 
         char cmd[MAX_CMD_LEN];
         if (readline_and_prompt(cmd, sizeof(cmd)) <= 0) {
+            status = 0;
             continue;
         }
 
