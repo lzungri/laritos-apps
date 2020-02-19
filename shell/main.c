@@ -9,14 +9,14 @@
 
 
 static void welcome_message(void) {
-    printf(" _______________");
-    printf("< laritOS shell >");
-    printf(" ---------------");
-    printf("        \\   ^__^");
-    printf("         \\  (oo)\\_______");
-    printf( "            (__)\\       )\\/\\");
-    printf( "                ||----w |");
-    printf( "                ||     ||");
+    printf(" _______________\n");
+    printf("< laritOS shell >\n");
+    printf(" ---------------\n");
+    printf("        \\   ^__^\n");
+    printf("         \\  (oo)\\_______\n");
+    printf( "            (__)\\       )\\/\\\n");
+    printf( "                ||----w |\n");
+    printf( "                ||     ||\n");
 }
 
 static int parse_args(char *cmd, int *argc, char **argv) {
@@ -60,11 +60,11 @@ static builtin_t BUILTINS[] = {
 };
 
 static int builtin_help(char *cmd, int argc, char **argv) {
-    printf("Builtins:");
+    printf("Builtins:\n");
     int i;
     for (i = 0; i < sizeof(BUILTINS) / sizeof(BUILTINS[0]); i++) {
         builtin_t *b = &BUILTINS[i];
-        printf("  %-10.10s %s", b->cmd, b->help);
+        printf("  %-10.10s %s\n", b->cmd, b->help);
     }
     return 0;
 }
@@ -79,13 +79,13 @@ static int dispatch_command(char *cmd, int argc, char **argv) {
         builtin_t *b = &BUILTINS[i];
         if (strncmp(argv[0], b->cmd, MAX_CMD_LEN) == 0) {
             if (argc < b->minargs + 1) {
-                printf("Syntax: %s", b->syntax != NULL ? b->syntax : "error");
+                printf("Syntax: %s\n", b->syntax != NULL ? b->syntax : "error");
                 return -1;
             }
             return b->handler(cmd, argc, argv);
         }
     }
-    printf("Command '%s' not found", cmd);
+    printf("Command '%s' not found\n", cmd);
     return -1;
 }
 
@@ -97,16 +97,16 @@ int main(void) {
     int status = 0;
 
     while (status != STATUS_TERMINATE) {
-        printf("[%d] $", status);
+        printf("[%d] $ ", status);
 
         char cmd[MAX_CMD_LEN];
 
         int bytes_read = readline(cmd, sizeof(cmd));
         if (bytes_read < 0) {
-            printf("Error reading from input device");
+            printf("Error reading from input device\n");
             goto exit;
         }
-        printf("[%d] $ %s", status, cmd);
+        printf("\n[%d] $ %s\n", status, cmd);
 
         if (strlen(cmd) <= 0) {
             continue;
@@ -115,7 +115,7 @@ int main(void) {
         int argc;
         char *argv[MAX_ARGS] = { 0 };
         if (parse_args(cmd, &argc, argv) < 0) {
-            printf("Error parsing arguments");
+            printf("Error parsing arguments\n");
             continue;
         }
 
@@ -123,6 +123,6 @@ int main(void) {
     }
 
 exit:
-    printf("Exiting shell");
+    printf("Exiting shell\n");
     return 0;
 }

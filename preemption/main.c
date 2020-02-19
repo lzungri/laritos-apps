@@ -12,10 +12,10 @@ int main(void) {
     do {
         time(&cur);
         if (cur.secs >= prev.secs) {
-            printf("time=%lu", (uint32_t) cur.secs);
+            printf("time=%lu\n", (uint32_t) cur.secs);
             prev = cur;
         }
     } while(deadline.secs > cur.secs);
-    printf("Finishing process");
+    printf("Finishing process\n");
     return 0;
 }

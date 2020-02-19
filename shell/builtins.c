@@ -13,7 +13,7 @@ int builtin_exit(char *cmd, int argc, char **argv) {
 }
 
 int builtin_cd(char *cmd, int argc, char **argv) {
-    printf("Entering dir %s", argv[1]);
+    printf("Entering dir %s\n", argv[1]);
     return 0;
 }
 

@@ -25,22 +25,22 @@ void func2(void) {
 }
 
 int main(void) {
-    printf("&value=0x%p, value=%d", &value, value);
-    printf("&str=0x%p, str=0x%p *str='%s'", &str, str, str);
+    printf("&value=0x%p, value=%d\n", &value, value);
+    printf("&str=0x%p, str=0x%p *str='%s'\n", &str, str, str);
 
-    printf("original data[]   = { %u, %u, %u }", data[0], data[1], data[2]);
-    printf("original datac[]  = { %u, %u, %u }", datac[0], datac[1], datac[2]);
-    printf("original datac2[] = { %u, %u, %u }", datac2[0], datac2[1], datac2[2]);
-    printf("original datac3[] = { %u, %u, %u }", datac3[0], datac3[1], datac3[2]);
+    printf("original data[]   = { %u, %u, %u }\n", data[0], data[1], data[2]);
+    printf("original datac[]  = { %u, %u, %u }\n", datac[0], datac[1], datac[2]);
+    printf("original datac2[] = { %u, %u, %u }\n", datac2[0], datac2[1], datac2[2]);
+    printf("original datac3[] = { %u, %u, %u }\n", datac3[0], datac3[1], datac3[2]);
 
     func2();
     data[2] = 5;
     datac[2] = 6;
     datac2[2] = 7;
     datac3[2] = 8;
-    printf("final    data[]   = { %u, %u, %u }", data[0], data[1], data[2]);
-    printf("final    datac[]  = { %u, %u, %u }", datac[0], datac[1], datac[2]);
-    printf("final    datac2[] = { %u, %u, %u }", datac2[0], datac2[1], datac2[2]);
-    printf("final    datac3[] = { %u, %u, %u }", datac3[0], datac3[1], datac3[2]);
+    printf("final    data[]   = { %u, %u, %u }\n", data[0], data[1], data[2]);
+    printf("final    datac[]  = { %u, %u, %u }\n", datac[0], datac[1], datac[2]);
+    printf("final    datac2[] = { %u, %u, %u }\n", datac2[0], datac2[1], datac2[2]);
+    printf("final    datac3[] = { %u, %u, %u }\n", datac3[0], datac3[1], datac3[2]);
     return 0;
 }

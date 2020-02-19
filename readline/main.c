@@ -7,8 +7,8 @@
 int main(void) {
     char buf[128];
     while (readline(buf, sizeof(buf)) > 0) {
-        printf("$ %s", buf);
+        printf("$ %s\n", buf);
     }
-    printf("Exiting...");
+    printf("Exiting...\n");
     return 0;
 }

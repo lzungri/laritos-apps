@@ -6,6 +6,6 @@
 
 int main(void) {
     time_t t;
-    printf("ret=%d, time secs=%lu, nsecs=%lu", time(&t), (uint32_t) t.secs, t.ns);
+    printf("ret=%d, time secs=%lu, nsecs=%lu\n", time(&t), (uint32_t) t.secs, t.ns);
     return 0;
 }
