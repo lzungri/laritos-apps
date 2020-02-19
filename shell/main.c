@@ -89,6 +89,10 @@ static int dispatch_command(char *cmd, int argc, char **argv) {
     return -1;
 }
 
+static inline void print_prompt(void) {
+    printf("$ ");
+}
+
 int main(void) {
     set_process_name("shell");
 
@@ -97,18 +101,10 @@ int main(void) {
     int status = 0;
 
     while (status != STATUS_TERMINATE) {
-        printf("[%d] $ ", status);
+        print_prompt();
 
         char cmd[MAX_CMD_LEN];
-
-        int bytes_read = readline(cmd, sizeof(cmd));
-        if (bytes_read < 0) {
-            printf("Error reading from input device\n");
-            goto exit;
-        }
-        printf("\n[%d] $ %s\n", status, cmd);
-
-        if (strlen(cmd) <= 0) {
+        if (readline_and_prompt(cmd, sizeof(cmd)) <= 0) {
             continue;
         }
 
@@ -122,7 +118,6 @@ int main(void) {
         status = dispatch_command(cmd, argc, argv);
     }
 
-exit:
     printf("Exiting shell\n");
     return 0;
 }
