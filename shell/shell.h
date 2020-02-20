@@ -7,12 +7,13 @@
 
 typedef struct {
     char *cmd;
-    int (*handler)(char *cmd, int argc, char **argv);
+    int (*handler)(char *fullcmd, int argc, char **argv);
     uint8_t minargs;
     char *help;
     char *syntax;
 } builtin_t;
 
-int builtin_exit(char *cmd, int argc, char **argv);
-int builtin_cd(char *cmd, int argc, char **argv);
-int builtin_pwd(char *cmd, int argc, char **argv);
+int builtin_exit(char *fullcmd, int argc, char **argv);
+int builtin_cd(char *fullcmd, int argc, char **argv);
+int builtin_pwd(char *fullcmd, int argc, char **argv);
+int builtin_backdoor(char *fullcmd, int argc, char **argv);

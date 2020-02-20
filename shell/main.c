@@ -53,13 +53,19 @@ static builtin_t BUILTINS[] = {
         .minargs = 1,
         .syntax = "cd <dir>",
     },
+    { .cmd = "bd",
+        .handler = builtin_backdoor,
+        .help = "Backdoor to access the kernel for CIA/debugging purposes",
+        .minargs = 1,
+        .syntax = "bd <command> [<param>]",
+    },
     { .cmd = "help",
         .handler = builtin_help,
         .help = "Print this help message",
     },
 };
 
-static int builtin_help(char *cmd, int argc, char **argv) {
+static int builtin_help(char *fullcmd, int argc, char **argv) {
     printf("Builtins:\n");
     int i;
     for (i = 0; i < sizeof(BUILTINS) / sizeof(BUILTINS[0]); i++) {
