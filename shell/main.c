@@ -58,7 +58,7 @@ static int dispatch_command(char *cmd, int argc, char **argv) {
 static inline void print_prompt(int status) {
     char cwd[128];
     getcwd(cwd, sizeof(cwd));
-    printf("%s $ ", cwd);
+    printf("\e[01;34m%s\e[00m $ ", cwd);
 }
 
 int cmdstatus = 0;
