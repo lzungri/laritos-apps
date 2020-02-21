@@ -6,6 +6,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
+#include <utils/utils.h>
 #include "shell.h"
 
 static int builtin_exit(char *fullcmd, int argc, char **argv) {
@@ -17,6 +18,30 @@ static int builtin_cd(char *fullcmd, int argc, char **argv) {
         printf("cd: %s: No such directory\n", argv[1]);
         return -1;
     }
+    return 0;
+}
+
+static int builtin_ls(char *fullcmd, int argc, char **argv) {
+    int offset = 0;
+    int nentries;
+    listdir_t dirs[8];
+
+    do {
+        nentries = listdir(argc > 1 ? argv[1] : NULL, offset, dirs, ARRAYSIZE(dirs));
+        if (nentries == 0) {
+            return 0;
+        }
+        if (nentries < 0) {
+            printf("Couldn't list directory\n");
+            return -1;
+        }
+        offset += nentries;
+        int i;
+        for (i = 0; i < nentries; i++) {
+            printf("%s%s\n", dirs[i].name, dirs[i].isdir ? "/" : "");
+        }
+    } while (nentries == ARRAYSIZE(dirs));
+
     return 0;
 }
 
@@ -54,6 +79,10 @@ builtin_t BUILTINS[] = {
         .help = "Change the current directory to dir",
         .minargs = 1,
         .syntax = "cd <dir>",
+    },
+    { .cmd = "ls",
+        .handler = builtin_ls,
+        .help = "List directory contents",
     },
     { .cmd = "pwd",
         .handler = builtin_pwd,
