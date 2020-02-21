@@ -96,7 +96,9 @@ static int dispatch_command(char *cmd, int argc, char **argv) {
 }
 
 static inline void print_prompt(int status) {
-    printf("[%d] $ ", status);
+    char cwd[128];
+    getcwd(cwd, sizeof(cwd));
+    printf("[%d] %s $ ", status, cwd);
 }
 
 int main(void) {

@@ -13,7 +13,10 @@ int builtin_exit(char *fullcmd, int argc, char **argv) {
 }
 
 int builtin_cd(char *fullcmd, int argc, char **argv) {
-    printf("Entering dir %s\n", argv[1]);
+    if (chdir(argv[1]) < 0) {
+        printf("cd: %s: No such directory\n", argv[1]);
+        return -1;
+    }
     return 0;
 }
 
