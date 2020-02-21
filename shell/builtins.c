@@ -38,7 +38,7 @@ static int builtin_ls(char *fullcmd, int argc, char **argv) {
         offset += nentries;
         int i;
         for (i = 0; i < nentries; i++) {
-            printf("%s%s\n", dirs[i].name, dirs[i].isdir ? "/" : "");
+            printf("%s%s\e[00m\n", dirs[i].isdir ? "\e[01;34m" : "", dirs[i].name);
         }
     } while (nentries == ARRAYSIZE(dirs));
 
