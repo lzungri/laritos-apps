@@ -12,3 +12,6 @@ typedef struct {
     char *help;
     char *syntax;
 } builtin_t;
+
+extern int cmdstatus;
+extern builtin_t BUILTINS[];

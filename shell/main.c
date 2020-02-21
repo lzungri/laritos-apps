@@ -42,7 +42,6 @@ static int dispatch_command(char *cmd, int argc, char **argv) {
     }
 
     builtin_t *b;
-    extern builtin_t BUILTINS[];
     for (b = BUILTINS; b->cmd != NULL; b++) {
         if (strncmp(argv[0], b->cmd, MAX_CMD_LEN) == 0) {
             if (argc < b->minargs + 1) {

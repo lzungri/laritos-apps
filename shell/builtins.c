@@ -7,8 +7,6 @@
 #include <string.h>
 #include "shell.h"
 
-extern int cmdstatus;
-
 static int builtin_exit(char *fullcmd, int argc, char **argv) {
     return STATUS_TERMINATE;
 }
