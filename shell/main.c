@@ -36,57 +36,14 @@ static int parse_args(char *cmd, int *argc, char **argv) {
     return 0;
 }
 
-static int builtin_help(char *cmd, int argc, char **argv);
-
-static builtin_t BUILTINS[] = {
-    { .cmd = "cd",
-        .handler = builtin_cd,
-        .help = "Change the current directory to dir",
-        .minargs = 1,
-        .syntax = "cd <dir>",
-    },
-    { .cmd = "pwd",
-        .handler = builtin_pwd,
-        .help = "Print name of current/working directory",
-    },
-    { .cmd = "status",
-        .handler = builtin_status,
-        .help = "Print last command exit status",
-    },
-    { .cmd = "bd",
-        .handler = builtin_backdoor,
-        .help = "Backdoor to access the kernel for CIA/debugging purposes",
-        .minargs = 1,
-        .syntax = "bd <command> [<param>]",
-    },
-    { .cmd = "exit",
-        .handler = builtin_exit,
-        .help = "Quit the shell",
-    },
-    { .cmd = "help",
-        .handler = builtin_help,
-        .help = "Print this help message",
-    },
-};
-
-static int builtin_help(char *fullcmd, int argc, char **argv) {
-    printf("Builtins:\n");
-    int i;
-    for (i = 0; i < sizeof(BUILTINS) / sizeof(BUILTINS[0]); i++) {
-        builtin_t *b = &BUILTINS[i];
-        printf("  %-10.10s %s\n", b->cmd, b->help);
-    }
-    return 0;
-}
-
 static int dispatch_command(char *cmd, int argc, char **argv) {
     if (cmd == NULL || cmd[0] == '\0') {
         return 0;
     }
 
-    int i;
-    for (i = 0; i < sizeof(BUILTINS) / sizeof(BUILTINS[0]); i++) {
-        builtin_t *b = &BUILTINS[i];
+    builtin_t *b;
+    extern builtin_t BUILTINS[];
+    for (b = BUILTINS; b->cmd != NULL; b++) {
         if (strncmp(argv[0], b->cmd, MAX_CMD_LEN) == 0) {
             if (argc < b->minargs + 1) {
                 printf("Syntax: %s\n", b->syntax != NULL ? b->syntax : "error");
