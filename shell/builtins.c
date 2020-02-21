@@ -21,6 +21,9 @@ int builtin_cd(char *fullcmd, int argc, char **argv) {
 }
 
 int builtin_pwd(char *fullcmd, int argc, char **argv) {
+    char cwd[128];
+    getcwd(cwd, sizeof(cwd));
+    printf("%s\n", cwd);
     return 0;
 }
 
