@@ -13,6 +13,30 @@ static int builtin_exit(char *fullcmd, int argc, char **argv) {
     return STATUS_TERMINATE;
 }
 
+static int builtin_cat(char *fullcmd, int argc, char **argv) {
+    file_t *f = open(argv[1], ACCESS_MODE_READ);
+    if (f == NULL) {
+        printf("No such file or directory\n");
+        return -1;
+    }
+
+    char buf[32];
+    int nbytes;
+    while ((nbytes = read(f, buf, sizeof(buf) - 1)) > 0) {
+        buf[nbytes] = '\0';
+        printf("%s", buf);
+    }
+    printf("\n");
+
+    if (nbytes < 0) {
+        printf("Couldn't read '%s'\n", argv[1]);
+    }
+
+    close(f);
+
+    return 0;
+}
+
 static int builtin_cd(char *fullcmd, int argc, char **argv) {
     if (chdir(argv[1]) < 0) {
         printf("cd: %s: No such directory\n", argv[1]);
@@ -74,6 +98,12 @@ static int builtin_help(char *cmd, int argc, char **argv);
 
 // Null-terminated array of builtins
 builtin_t BUILTINS[] = {
+    { .cmd = "cat",
+        .handler = builtin_cat,
+        .help = "Print contents of the given file",
+        .minargs = 1,
+        .syntax = "cat <file>",
+    },
     { .cmd = "cd",
         .handler = builtin_cd,
         .help = "Change the current directory to the given dir",
