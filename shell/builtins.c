@@ -76,7 +76,7 @@ static int builtin_help(char *cmd, int argc, char **argv);
 builtin_t BUILTINS[] = {
     { .cmd = "cd",
         .handler = builtin_cd,
-        .help = "Change the current directory to dir",
+        .help = "Change the current directory to the given dir",
         .minargs = 1,
         .syntax = "cd <dir>",
     },

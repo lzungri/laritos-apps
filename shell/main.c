@@ -51,7 +51,7 @@ static int dispatch_command(char *cmd, int argc, char **argv) {
             return b->handler(cmd, argc, argv);
         }
     }
-    printf("Command '%s' not found\n", cmd);
+    printf("Command '%s' not found. Type 'help' for more info\n", cmd);
     return -1;
 }
 
@@ -87,6 +87,6 @@ int main(void) {
         cmdstatus = dispatch_command(cmd, argc, argv);
     }
 
-    printf("Exiting shell\n");
+    printf("Bye\n");
     return 0;
 }
