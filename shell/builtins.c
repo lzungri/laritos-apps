@@ -5,6 +5,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
+#include <time.h>
 #include "shell.h"
 
 static int builtin_exit(char *fullcmd, int argc, char **argv) {
@@ -37,6 +38,13 @@ static int builtin_status(char *fullcmd, int argc, char **argv) {
     return 0;
 }
 
+static int builtin_time(char *fullcmd, int argc, char **argv) {
+    time_t t;
+    time(&t);
+    printf("%lu\n", (uint32_t) t.secs);
+    return 0;
+}
+
 static int builtin_help(char *cmd, int argc, char **argv);
 
 // Null-terminated array of builtins
@@ -50,6 +58,10 @@ builtin_t BUILTINS[] = {
     { .cmd = "pwd",
         .handler = builtin_pwd,
         .help = "Print name of current/working directory",
+    },
+    { .cmd = "time",
+        .handler = builtin_time,
+        .help = "Seconds since 1970-01-01 00:00:00 UTC",
     },
     { .cmd = "status",
         .handler = builtin_status,
