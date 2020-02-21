@@ -49,6 +49,10 @@ static builtin_t BUILTINS[] = {
         .handler = builtin_pwd,
         .help = "Print name of current/working directory",
     },
+    { .cmd = "status",
+        .handler = builtin_status,
+        .help = "Print last command exit status",
+    },
     { .cmd = "bd",
         .handler = builtin_backdoor,
         .help = "Backdoor to access the kernel for CIA/debugging purposes",
@@ -98,22 +102,22 @@ static int dispatch_command(char *cmd, int argc, char **argv) {
 static inline void print_prompt(int status) {
     char cwd[128];
     getcwd(cwd, sizeof(cwd));
-    printf("[%d] %s $ ", status, cwd);
+    printf("%s $ ", cwd);
 }
+
+int cmdstatus = 0;
 
 int main(void) {
     set_process_name("shell");
 
     welcome_message();
 
-    int status = 0;
-
-    while (status != STATUS_TERMINATE) {
-        print_prompt(status);
+    while (cmdstatus != STATUS_TERMINATE) {
+        print_prompt(cmdstatus);
 
         char cmd[MAX_CMD_LEN];
         if (readline_and_prompt(cmd, sizeof(cmd)) <= 0) {
-            status = 0;
+            cmdstatus = 0;
             continue;
         }
 
@@ -124,7 +128,7 @@ int main(void) {
             continue;
         }
 
-        status = dispatch_command(cmd, argc, argv);
+        cmdstatus = dispatch_command(cmd, argc, argv);
     }
 
     printf("Exiting shell\n");
