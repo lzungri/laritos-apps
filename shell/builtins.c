@@ -37,6 +37,48 @@ static int builtin_cat(char *fullcmd, int argc, char **argv) {
     return 0;
 }
 
+static int builtin_xxd(char *fullcmd, int argc, char **argv) {
+    file_t *f = open(argv[1], ACCESS_MODE_READ);
+    if (f == NULL) {
+        printf("No such file or directory\n");
+        return -1;
+    }
+
+    char buf[16];
+    int nbytes;
+    uint32_t pos = 0;
+    while ((nbytes = read(f, buf, sizeof(buf))) > 0) {
+        printf("%06lu:", pos++);
+        int i;
+        for (i = 0; i < sizeof(buf); i++) {
+            if (i % 4 == 0) {
+                printf(" ");
+            }
+            if (i < nbytes) {
+                printf("%02x", buf[i]);
+            } else {
+                printf("  ");
+            }
+        }
+        printf("  |  ");
+        for (i = 0; i < sizeof(buf); i++) {
+            if (i < nbytes) {
+                printf("%c", is_printable(buf[i]) ? buf[i] : '.');
+            }
+        }
+        printf("\n");
+    }
+    printf("\n");
+
+    if (nbytes < 0) {
+        printf("Couldn't read '%s'\n", argv[1]);
+    }
+
+    close(f);
+
+    return 0;
+}
+
 static int builtin_cd(char *fullcmd, int argc, char **argv) {
     if (chdir(argv[1]) < 0) {
         printf("cd: %s: No such directory\n", argv[1]);
@@ -103,6 +145,12 @@ builtin_t BUILTINS[] = {
         .help = "Print contents of the given file",
         .minargs = 1,
         .syntax = "cat <file>",
+    },
+    { .cmd = "xxd",
+        .handler = builtin_xxd,
+        .help = "Print contents of the given file in hex",
+        .minargs = 1,
+        .syntax = "xxd <file>",
     },
     { .cmd = "cd",
         .handler = builtin_cd,
