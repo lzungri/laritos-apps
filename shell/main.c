@@ -5,18 +5,49 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
+#include <time.h>
+#include <utils/utils.h>
 #include "shell.h"
 
+char *banners[] = {
+    " ____\n"
+    "< Hi >\n"
+    " ----\n"
+    "   \\   ^__^\n"
+    "    \\  (oo)\\_______\n"
+     "       (__)\\       )\\/\\\n"
+     "           ||----w |\n"
+     "           ||     ||\n",
 
-static void welcome_message(void) {
-    printf(" _______________\n");
-    printf("< laritOS shell >\n");
-    printf(" ---------------\n");
-    printf("        \\   ^__^\n");
-    printf("         \\  (oo)\\_______\n");
-    printf( "            (__)\\       )\\/\\\n");
-    printf( "                ||----w |\n");
-    printf( "                ||     ||\n");
+     "       g. ....                     \n"
+     "        `^*gga````*gbg,,      Hi   \n"
+     "      ,db`` ,,.oooo.``,d*          \n"
+     "   'b`   ,d`     '***^`*g `^g,,    \n"
+     "   ,*   a`               f   *,    \n"
+     "  .b   ,`                'b   `b   \n"
+     "  f   ,^                 `^g,  `b, \n"
+     " .d  `b`             ,,,,,,*b   '* \n"
+     ",b   f`.ao**^^*·,,,d`      ` f  ^b \n"
+     "'g,  f*b        b  *       ' ,.ob  \n"
+     "  *,b^`',    ,,*    `*···*^`  f    \n"
+     "   `*    `````                     \n",
+};
+
+
+static void show_banner(void) {
+    time_t t;
+    time(&t);
+    char *line = banners[t.secs % ARRAYSIZE(banners)];
+    while (line != NULL && *line != '\0') {
+        char *lineend = strchr(line, '\n');
+        if (lineend == NULL) {
+            printf("%s\n", line);
+            break;
+        }
+        *lineend = '\0';
+        printf("%s\n", line);
+        line = lineend + 1;
+    }
 }
 
 static int parse_args(char *cmd, int *argc, char **argv) {
@@ -66,7 +97,7 @@ int cmdstatus = 0;
 int main(void) {
     set_process_name("shell");
 
-    welcome_message();
+    show_banner();
 
     while (cmdstatus != STATUS_TERMINATE) {
         print_prompt(cmdstatus);
