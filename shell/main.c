@@ -126,7 +126,7 @@ static int dispatch_command(char *cmd, int argc, char **argv) {
     return -1;
 }
 
-static inline void print_prompt(int status) {
+static inline void print_prompt(void) {
     char cwd[128];
     getcwd(cwd, sizeof(cwd));
     printf("\e[01;34m%s\e[00m $ ", cwd);
@@ -140,12 +140,15 @@ int main(void) {
     show_banner();
 
     while (cmdstatus != STATUS_TERMINATE) {
-        print_prompt(cmdstatus);
+        print_prompt();
 
         char cmd[MAX_CMD_LEN];
-        if (readline_and_prompt(cmd, sizeof(cmd)) <= 0) {
+        int ret = readline_and_prompt(cmd, sizeof(cmd));
+        if (ret == 0) {
             cmdstatus = 0;
             continue;
+        } else if (ret == CHAR_EOF) {
+            break;
         }
 
         int argc;
@@ -158,6 +161,6 @@ int main(void) {
         cmdstatus = dispatch_command(cmd, argc, argv);
     }
 
-    printf("Bye\n");
+    printf("\nBye\n");
     return 0;
 }
