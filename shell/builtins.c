@@ -25,6 +25,9 @@ static int builtin_cat(char *fullcmd, int argc, char **argv) {
     while ((nbytes = read(f, buf, sizeof(buf) - 1)) > 0) {
         buf[nbytes] = '\0';
         printf("%s", buf);
+        if (strchr(buf, CHAR_END_OF_TEXT) != NULL) {
+            break;
+        }
     }
     printf("\n");
 
@@ -48,7 +51,9 @@ static int builtin_xxd(char *fullcmd, int argc, char **argv) {
     int nbytes;
     uint32_t pos = 0;
     while ((nbytes = read(f, buf, sizeof(buf))) > 0) {
-        printf("%06lu:", pos++);
+        printf("%06lu:", pos);
+        pos += nbytes;
+
         int i;
         for (i = 0; i < sizeof(buf); i++) {
             if (i % 4 == 0) {
@@ -67,6 +72,10 @@ static int builtin_xxd(char *fullcmd, int argc, char **argv) {
             }
         }
         printf("\n");
+
+        if (strchr(buf, CHAR_END_OF_TEXT) != NULL) {
+            break;
+        }
     }
     printf("\n");
 
