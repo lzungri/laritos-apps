@@ -11,9 +11,9 @@ int main(void) {
         // [CONFIG_SCHED_PRIORITY_MAX_KERNEL, SCHED_PRIORITY_MAX_USER) can only
         // be used by kernel processes
         if (set_priority(0) < 0) {
-            printf("OK: a user process should not be able to set a priority of 0");
+            printf("OK: a user process should not be able to set a priority of 0\n");
         } else {
-            printf("ERROR: a user process should not be able to set a priority of 0");
+            printf("ERROR: a user process should not be able to set a priority of 0\n");
         }
         set_priority(100);
         break;
@@ -31,11 +31,11 @@ int main(void) {
         uint64_t deadline = t.secs + 6;
         while (time(&t) >= 0 && t.secs < deadline);
 
-        printf("Sleeping for %u seconds", i);
+        printf("Sleeping for %u seconds\n", i);
         sleep(i);
-        printf("Waking up");
+        printf("Waking up\n");
     }
 
-    printf("Finishing 'sleep' process");
+    printf("Finishing 'sleep' process\n");
     return 0;
 }
