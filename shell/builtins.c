@@ -20,7 +20,7 @@ static int builtin_cat(char *fullcmd, int argc, char **argv) {
         return -1;
     }
 
-    char buf[32];
+    char buf[128];
     int nbytes;
     while ((nbytes = read(f, buf, sizeof(buf) - 1)) > 0) {
         buf[nbytes] = '\0';
