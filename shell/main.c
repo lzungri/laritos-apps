@@ -96,16 +96,21 @@ static int parse_args(char *cmd, int *argc, char **argv) {
     argv[0] = cmd;
     *argc = 1;
 
-    for ( ; *argc < MAX_ARGS; (*argc)++) {
-        char *token = strchr(argv[*argc - 1], ' ');
-        if (token == NULL || token[1] == '\0') {
-            break;
+    bool quote_mode = false;
+    bool new_arg = false;
+    int i;
+    for (i = 0; cmd[i] != '\0' && *argc < MAX_ARGS; i++) {
+        if (cmd[i] == ' ' && !quote_mode) {
+            cmd[i] = '\0';
+            new_arg = true;
+        } else if (cmd[i] == '\"') {
+            cmd[i] = '\0';
+            quote_mode = !quote_mode;
+        } else if (new_arg) {
+            argv[(*argc)++] = &cmd[i];
+            new_arg = false;
         }
-
-        *token = '\0';
-        argv[*argc] = token + 1;
     }
-
     return 0;
 }
 
