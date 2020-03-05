@@ -15,3 +15,4 @@ typedef struct {
 
 extern int cmdstatus;
 extern builtin_t BUILTINS[];
+void show_banner(void);

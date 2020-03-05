@@ -162,6 +162,11 @@ static int builtin_time(char *fullcmd, int argc, char **argv) {
     return 0;
 }
 
+static int builtin_banner(char *fullcmd, int argc, char **argv) {
+    show_banner();
+    return 0;
+}
+
 static int builtin_help(char *cmd, int argc, char **argv);
 
 // Null-terminated array of builtins
@@ -211,6 +216,10 @@ builtin_t BUILTINS[] = {
         .help = "Backdoor to access the kernel for CIA/debugging purposes",
         .minargs = 1,
         .syntax = "bd <command> [<param>]",
+    },
+    { .cmd = "banner",
+        .handler = builtin_banner,
+        .help = "Display a welcome message",
     },
     { .cmd = "exit",
         .handler = builtin_exit,

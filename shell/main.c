@@ -78,7 +78,7 @@ banner_t banners[] = {
 };
 
 
-static void show_banner(void) {
+void show_banner(void) {
     time_t t;
     time(&t);
     banner_t *b = &banners[t.secs % ARRAYSIZE(banners)];
