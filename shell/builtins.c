@@ -88,6 +88,23 @@ static int builtin_xxd(char *fullcmd, int argc, char **argv) {
     return 0;
 }
 
+static int builtin_write(char *fullcmd, int argc, char **argv) {
+    file_t *f = open(argv[1], ACCESS_MODE_WRITE);
+    if (f == NULL) {
+        printf("No such file or directory\n");
+        return -1;
+    }
+
+    int n = write(f, argv[2], strlen(argv[2]));
+    if (n < 0) {
+        printf("Couldn't write into file\n");
+    }
+    printf("%d bytes were written into '%s'\n", n, argv[1]);
+
+    close(f);
+    return n;
+}
+
 static int builtin_cd(char *fullcmd, int argc, char **argv) {
     if (chdir(argv[1]) < 0) {
         printf("cd: %s: No such directory\n", argv[1]);
@@ -160,6 +177,12 @@ builtin_t BUILTINS[] = {
         .help = "Print contents of the given file in hex",
         .minargs = 1,
         .syntax = "xxd <file>",
+    },
+    { .cmd = "write",
+        .handler = builtin_write,
+        .help = "Write <data> into <file>",
+        .minargs = 2,
+        .syntax = "write <file> <data>",
     },
     { .cmd = "cd",
         .handler = builtin_cd,
