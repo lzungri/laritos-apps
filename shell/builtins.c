@@ -6,8 +6,12 @@
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
+#include <utils/property.h>
 #include <utils/utils.h>
 #include "shell.h"
+
+#define COLOR_BLUE    "\e[01;34m"
+#define COLOR_RESTORE "\e[00m"
 
 static int builtin_exit(char *fullcmd, int argc, char **argv) {
     return STATUS_TERMINATE;
@@ -65,13 +69,13 @@ static int builtin_xxd(char *fullcmd, int argc, char **argv) {
                 printf("  ");
             }
         }
-        printf("  |  ");
+        printf("  |  " COLOR_BLUE);
         for (i = 0; i < sizeof(buf); i++) {
             if (i < nbytes) {
                 printf("%c", is_printable(buf[i]) ? buf[i] : '.');
             }
         }
-        printf("\n");
+        printf(COLOR_RESTORE "\n");
 
         if (strchr(buf, CHAR_END_OF_TEXT) != NULL) {
             break;
@@ -130,7 +134,7 @@ static int builtin_ls(char *fullcmd, int argc, char **argv) {
         offset += nentries;
         int i;
         for (i = 0; i < nentries; i++) {
-            printf("%s%s\e[00m\n", dirs[i].isdir ? "\e[01;34m" : "", dirs[i].name);
+            printf("%s%s" COLOR_RESTORE "\n", dirs[i].isdir ? COLOR_BLUE : "", dirs[i].name);
         }
     } while (nentries == ARRAYSIZE(dirs));
 
@@ -167,6 +171,39 @@ static int builtin_banner(char *fullcmd, int argc, char **argv) {
     return 0;
 }
 
+static int builtin_getprop(char *fullcmd, int argc, char **argv) {
+    int offset = 0;
+    int nentries;
+    listdir_t dirs[8];
+
+    do {
+        nentries = listdir("/kernel/property/", offset, dirs, ARRAYSIZE(dirs));
+        if (nentries == 0) {
+            return 0;
+        }
+        if (nentries < 0) {
+            printf("Couldn't list '/kernel/property/' directory\n");
+            return -1;
+        }
+        offset += nentries;
+
+        int i;
+        for (i = 0; i < nentries; i++) {
+            if (strncmp(dirs[i].name, "..", 3) == 0) {
+                continue;
+            }
+
+            char buf[PROPERTY_VALUE_MAX_LEN] = { 0 };
+            if (get_property(dirs[i].name, buf) < 0) {
+                buf[0] = '?';
+            }
+            printf(COLOR_BLUE "%s" COLOR_RESTORE "=%s\n", dirs[i].name, buf);
+        }
+
+    } while (nentries == ARRAYSIZE(dirs));
+    return 0;
+}
+
 static int builtin_help(char *cmd, int argc, char **argv);
 
 // Null-terminated array of builtins
@@ -198,6 +235,10 @@ builtin_t BUILTINS[] = {
     { .cmd = "ls",
         .handler = builtin_ls,
         .help = "List directory contents",
+    },
+    { .cmd = "getprop",
+        .handler = builtin_getprop,
+        .help = "List properties and their values",
     },
     { .cmd = "pwd",
         .handler = builtin_pwd,
