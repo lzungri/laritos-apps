@@ -136,7 +136,7 @@ static int dispatch_command(char *cmd, int argc, char **argv) {
 static inline void print_prompt(void) {
     char cwd[128];
     getcwd(cwd, sizeof(cwd));
-    printf("\e[01;34m%s\e[00m $ ", cwd);
+    printf("\e[38;5;70m%s\e[00m $ ", cwd);
 }
 
 int cmdstatus = 0;
