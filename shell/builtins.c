@@ -85,6 +85,14 @@ static int builtin_xxd(char *fullcmd, int argc, char **argv) {
     return 0;
 }
 
+static int builtin_run(char *fullcmd, int argc, char **argv) {
+    int pid = spawn_process(argv[1]);
+    if (pid < 0) {
+        printf("Couldn't execute program '%s'\n", argv[1]);
+    }
+    return pid;
+}
+
 static int builtin_write(char *fullcmd, int argc, char **argv) {
     file_t *f = open(argv[1], ACCESS_MODE_WRITE);
     if (f == NULL) {
@@ -212,6 +220,12 @@ builtin_t BUILTINS[] = {
         .help = "Print contents of the given file in hex",
         .minargs = 1,
         .syntax = "xxd <file>",
+    },
+    { .cmd = "run",
+        .handler = builtin_run,
+        .help = "Run executable",
+        .minargs = 1,
+        .syntax = "run <executable>",
     },
     { .cmd = "write",
         .handler = builtin_write,
