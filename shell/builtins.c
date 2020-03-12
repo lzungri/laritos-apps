@@ -89,8 +89,11 @@ static int builtin_run(char *fullcmd, int argc, char **argv) {
     int pid = spawn_process(argv[1]);
     if (pid < 0) {
         printf("Couldn't execute program '%s'\n", argv[1]);
+        return pid;
     }
-    return pid;
+    int status;
+    waitpid(pid, &status);
+    return status;
 }
 
 static int builtin_write(char *fullcmd, int argc, char **argv) {
