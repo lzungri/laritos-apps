@@ -52,7 +52,7 @@ static int builtin_xxd(char *fullcmd, int argc, char **argv) {
     int nbytes;
     uint32_t pos = 0;
     while ((nbytes = read(f, buf, sizeof(buf))) > 0) {
-        printf("%06lu:", pos);
+        printf("%08x:", pos);
         pos += nbytes;
 
         int i;
