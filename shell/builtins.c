@@ -181,12 +181,12 @@ static int builtin_getprop(char *fullcmd, int argc, char **argv) {
     listdir_t dirs[8];
 
     do {
-        nentries = listdir("/kernel/property/", offset, dirs, ARRAYSIZE(dirs));
+        nentries = listdir("/property/", offset, dirs, ARRAYSIZE(dirs));
         if (nentries == 0) {
             return 0;
         }
         if (nentries < 0) {
-            printf("Couldn't list '/kernel/property/' directory\n");
+            printf("Couldn't list '/property/' directory\n");
             return -1;
         }
         offset += nentries;

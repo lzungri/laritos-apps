@@ -11,7 +11,7 @@
 
 static int read_proc_sysfs(char *pid, char *sysfsnode, char *buf, int blen) {
     char fullpath[128] = { 0 };
-    snprintf(fullpath, sizeof(fullpath), "/kernel/proc/%s/%s", pid, sysfsnode);
+    snprintf(fullpath, sizeof(fullpath), "/proc/%s/%s", pid, sysfsnode);
 
     file_t *f = open(fullpath, ACCESS_MODE_READ);
     if (f == NULL) {
@@ -57,12 +57,12 @@ int main(void) {
     listdir_t dirs[8];
 
     do {
-        nentries = listdir("/kernel/proc/", offset, dirs, ARRAYSIZE(dirs));
+        nentries = listdir("/proc/", offset, dirs, ARRAYSIZE(dirs));
         if (nentries == 0) {
             return 0;
         }
         if (nentries < 0) {
-            printf("Couldn't list '/kernel/proc' directory\n");
+            printf("Couldn't list '/proc' directory\n");
             return -1;
         }
         offset += nentries;
