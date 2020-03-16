@@ -49,7 +49,7 @@ static void print_proc_info(char *pid) {
 }
 
 int main(void) {
-    printf(COLOR_BLUE "%-7.7s %4.4s %4.4s %3.3s %-1.1s %-8.8s %9.9s %35.35s %13.13s %-20.20s" COLOR_RESTORE "\n",
+    printf(COLOR_BLUE "%-7.7s %4.4s %4.4s %3.3s %-1.1s %-8.8s %-9.9s %-35.35s %-13.13s %-20.20s" COLOR_RESTORE "\n",
             "name", "pid", "ppid", "prio", "K", "status", "starttime", "pc", "mode", "cmd");
 
     int offset = 0;
