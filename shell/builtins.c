@@ -138,7 +138,7 @@ static int builtin_ls(char *fullcmd, int argc, char **argv) {
         offset += nentries;
         int i;
         for (i = 0; i < nentries; i++) {
-            printf("%s%s" COLOR_RESTORE "\n", dirs[i].isdir ? COLOR_BLUE : "", dirs[i].name);
+            printf("%s%.100s%s" COLOR_RESTORE "\n", dirs[i].isdir ? COLOR_BLUE : "", dirs[i].name, strlen(dirs[i].name) > 100 ? "..." : "");
         }
     } while (nentries == ARRAYSIZE(dirs));
 
