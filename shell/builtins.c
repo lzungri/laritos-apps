@@ -121,6 +121,14 @@ static int builtin_cd(char *fullcmd, int argc, char **argv) {
     return 0;
 }
 
+static int builtin_mkdir(char *fullcmd, int argc, char **argv) {
+    if (mkdir(argv[1], ACCESS_MODE_EXEC | ACCESS_MODE_READ | ACCESS_MODE_WRITE) < 0) {
+        printf("Failed to create '%s'\n", argv[1]);
+        return -1;
+    }
+    return 0;
+}
+
 static int builtin_ls(char *fullcmd, int argc, char **argv) {
     int offset = 0;
     int nentries;
@@ -241,6 +249,12 @@ builtin_t BUILTINS[] = {
         .help = "Change the current directory to the given dir",
         .minargs = 1,
         .syntax = "cd <dir>",
+    },
+    { .cmd = "mkdir",
+        .handler = builtin_mkdir,
+        .help = "Create directory",
+        .minargs = 1,
+        .syntax = "mkdir <dir>",
     },
     { .cmd = "ls",
         .handler = builtin_ls,
