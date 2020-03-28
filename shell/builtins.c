@@ -85,15 +85,26 @@ static int builtin_xxd(char *fullcmd, int argc, char **argv) {
     return 0;
 }
 
-static int builtin_run(char *fullcmd, int argc, char **argv) {
+static int do_run(char *fullcmd, int argc, char **argv, bool background) {
     int pid = spawn_process(argv[1]);
     if (pid < 0) {
         printf("Couldn't execute program '%s'\n", argv[1]);
         return pid;
     }
-    int status;
-    waitpid(pid, &status);
-    return status;
+    if (!background) {
+        int status;
+        waitpid(pid, &status);
+        return status;
+    }
+    return 0;
+}
+
+static int builtin_run(char *fullcmd, int argc, char **argv) {
+    return do_run(fullcmd, argc, argv, false);
+}
+
+static int builtin_runbg(char *fullcmd, int argc, char **argv) {
+    return do_run(fullcmd, argc, argv, true);
 }
 
 static int builtin_write(char *fullcmd, int argc, char **argv) {
@@ -237,6 +248,12 @@ builtin_t BUILTINS[] = {
         .help = "Run executable",
         .minargs = 1,
         .syntax = "run <executable>",
+    },
+    { .cmd = "runbg",
+        .handler = builtin_runbg,
+        .help = "Run executable in the background",
+        .minargs = 1,
+        .syntax = "runbg <executable>",
     },
     { .cmd = "write",
         .handler = builtin_write,
