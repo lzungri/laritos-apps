@@ -10,102 +10,56 @@
 #include <utils/math.h>
 #include "shell.h"
 
-typedef struct {
-    uint8_t cols;
-    char *content;
-} banner_t;
-
-banner_t banners[] = {
-    { 26,
-        " ____                     "
-        "< Hi >                    "
-        " ----                     "
-        "   \\   ^__^               "
-        "    \\  (oo)\\_______       "
-        "       (__)\\       )\\/\\   "
-        "           ||----w |      "
-        "           ||     ||      ",
-    },
-    { 35,
-        "                                   "
-        "       `'. ..         ,,           "
-        "      ,````,;..;'`*,.',,         HI"
-        "      ,,``;'          `,;`.        "
-        "    '`   ,             *. ``,,'    "
-        " ,-,*   ;`               *   *, ,  "
-        "  ;`   ,`                ';   `'   "
-        "  ;   ,^                 `^,,  `.  "
-        " .`  `;`             ,,,,,,*;   '  "
-        ",;   ]`.-'**^^*',,.;`      ` ;  ;  "
-        "';,  ;*         ,  *       ' ,.;   "
-        "  *, ^`',    ,,*    `*...*^`  ;    "
-        "   `*    `````                     ",
-    },
-    { 14,
-        " ____         "
-        "< Hi >        "
-        " ----         "
-        " \\            "
-        "  \\           "
-        "   \\ >()_     "
-        "      (__)__ _",
-    },
-    { 27,
-        " ____                      "
-        "< Hi >                     "
-        " ----                      "
-        "     \\      _^^            "
-        "      \\   _- oo\\           "
-        "          \\----- \\______   "
-        "                \\       )\\ "
-        "                ||-----|| \\"
-        "                ||     ||  "
-    },
-    { 17,
-        " ____            "
-        "< Hi >           "
-        " ----            "
-        "   \\             "
-        "    \\            "
-        "        .--.     "
-        "       |o_o |    "
-        "       |:_/ |    "
-        "      //   \\ \\   "
-        "     (|     | )  "
-        "    /'\\_   _/`\\  "
-        "    \\___)=(___/  "
-    },
-};
-
-
-static void show_banner(void) {
+void show_banner(void) {
     time_t t;
     time(&t);
-    banner_t *b = &banners[t.secs % ARRAYSIZE(banners)];
-    char *buf = b->content;
-    char line[128] = { 0 };
-    while (*buf != '\0') {
-        memcpy(line, buf, min(sizeof(line) - 1, b->cols));
-        printf("%s\n", line);
-        buf += b->cols;
+
+    // 32 max banners supported... lazy
+    listdir_t dirs[32];
+    int nentries = listdir("/sys/res/shell/banners", 0, dirs, ARRAYSIZE(dirs));
+    if (nentries <= 0) {
+        printf("No banners found\n");
+        return;
     }
-    printf("\n");
+    // Ignore '..' dir entry
+    uint8_t idx = t.secs % (nentries - 1) + 1;
+
+    char buf[128];
+    snprintf(buf, sizeof(buf), "/sys/res/shell/banners/%s", dirs[idx].name);
+    file_t *f = open(buf, ACCESS_MODE_READ);
+    if (f == NULL) {
+        printf("Couldn't open banner '%s'\n", buf);
+        return;
+    }
+    int nbytes;
+    while ((nbytes = read(f, buf, sizeof(buf) - 1)) > 0) {
+        buf[nbytes] = '\0';
+        printf("%s", buf);
+    }
+    printf("\n\n");
+
+    close(f);
 }
 
 static int parse_args(char *cmd, int *argc, char **argv) {
     argv[0] = cmd;
     *argc = 1;
 
-    for ( ; *argc < MAX_ARGS; (*argc)++) {
-        char *token = strchr(argv[*argc - 1], ' ');
-        if (token == NULL || token[1] == '\0') {
-            break;
+    bool quote_mode = false;
+    bool new_arg = false;
+    int i;
+    for (i = 0; cmd[i] != '\0' && *argc < MAX_ARGS; i++) {
+        if (cmd[i] == ' ' && !quote_mode) {
+            cmd[i] = '\0';
+            new_arg = true;
+        } else if (cmd[i] == '\"') {
+            cmd[i] = '\0';
+            quote_mode = !quote_mode;
+        } else if (new_arg) {
+            argv[(*argc)++] = &cmd[i];
+            new_arg = false;
         }
-
-        *token = '\0';
-        argv[*argc] = token + 1;
     }
-
     return 0;
 }
 
@@ -131,7 +85,7 @@ static int dispatch_command(char *cmd, int argc, char **argv) {
 static inline void print_prompt(void) {
     char cwd[128];
     getcwd(cwd, sizeof(cwd));
-    printf("\e[01;34m%s\e[00m $ ", cwd);
+    printf("\e[38;5;70m%s\e[00m $ ", cwd);
 }
 
 int cmdstatus = 0;

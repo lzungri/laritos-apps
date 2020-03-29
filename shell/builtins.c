@@ -6,8 +6,12 @@
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
+#include <utils/property.h>
 #include <utils/utils.h>
 #include "shell.h"
+
+#define COLOR_BLUE    "\e[01;34m"
+#define COLOR_RESTORE "\e[00m"
 
 static int builtin_exit(char *fullcmd, int argc, char **argv) {
     return STATUS_TERMINATE;
@@ -20,14 +24,11 @@ static int builtin_cat(char *fullcmd, int argc, char **argv) {
         return -1;
     }
 
-    char buf[32];
+    char buf[128];
     int nbytes;
     while ((nbytes = read(f, buf, sizeof(buf) - 1)) > 0) {
         buf[nbytes] = '\0';
         printf("%s", buf);
-        if (strchr(buf, CHAR_END_OF_TEXT) != NULL) {
-            break;
-        }
     }
     printf("\n");
 
@@ -51,7 +52,7 @@ static int builtin_xxd(char *fullcmd, int argc, char **argv) {
     int nbytes;
     uint32_t pos = 0;
     while ((nbytes = read(f, buf, sizeof(buf))) > 0) {
-        printf("%06lu:", pos);
+        printf("%08x:", pos);
         pos += nbytes;
 
         int i;
@@ -65,17 +66,13 @@ static int builtin_xxd(char *fullcmd, int argc, char **argv) {
                 printf("  ");
             }
         }
-        printf("  |  ");
+        printf("  |  " COLOR_BLUE);
         for (i = 0; i < sizeof(buf); i++) {
             if (i < nbytes) {
                 printf("%c", is_printable(buf[i]) ? buf[i] : '.');
             }
         }
-        printf("\n");
-
-        if (strchr(buf, CHAR_END_OF_TEXT) != NULL) {
-            break;
-        }
+        printf(COLOR_RESTORE "\n");
     }
     printf("\n");
 
@@ -88,9 +85,56 @@ static int builtin_xxd(char *fullcmd, int argc, char **argv) {
     return 0;
 }
 
+static int do_run(char *fullcmd, int argc, char **argv, bool background) {
+    int pid = spawn_process(argv[1]);
+    if (pid < 0) {
+        printf("Couldn't execute program '%s'\n", argv[1]);
+        return pid;
+    }
+    if (!background) {
+        int status;
+        waitpid(pid, &status);
+        return status;
+    }
+    return 0;
+}
+
+static int builtin_run(char *fullcmd, int argc, char **argv) {
+    return do_run(fullcmd, argc, argv, false);
+}
+
+static int builtin_runbg(char *fullcmd, int argc, char **argv) {
+    return do_run(fullcmd, argc, argv, true);
+}
+
+static int builtin_write(char *fullcmd, int argc, char **argv) {
+    file_t *f = open(argv[1], ACCESS_MODE_WRITE);
+    if (f == NULL) {
+        printf("No such file or directory\n");
+        return -1;
+    }
+
+    int n = write(f, argv[2], strlen(argv[2]));
+    if (n < 0) {
+        printf("Couldn't write into file\n");
+    }
+    printf("%d bytes were written into '%s'\n", n, argv[1]);
+
+    close(f);
+    return n;
+}
+
 static int builtin_cd(char *fullcmd, int argc, char **argv) {
     if (chdir(argv[1]) < 0) {
         printf("cd: %s: No such directory\n", argv[1]);
+        return -1;
+    }
+    return 0;
+}
+
+static int builtin_mkdir(char *fullcmd, int argc, char **argv) {
+    if (mkdir(argv[1], ACCESS_MODE_EXEC | ACCESS_MODE_READ | ACCESS_MODE_WRITE) < 0) {
+        printf("Failed to create '%s'\n", argv[1]);
         return -1;
     }
     return 0;
@@ -113,7 +157,7 @@ static int builtin_ls(char *fullcmd, int argc, char **argv) {
         offset += nentries;
         int i;
         for (i = 0; i < nentries; i++) {
-            printf("%s%s\e[00m\n", dirs[i].isdir ? "\e[01;34m" : "", dirs[i].name);
+            printf("%s%.100s%s" COLOR_RESTORE "\n", dirs[i].isdir ? COLOR_BLUE : "", dirs[i].name, strlen(dirs[i].name) > 100 ? "..." : "");
         }
     } while (nentries == ARRAYSIZE(dirs));
 
@@ -145,6 +189,44 @@ static int builtin_time(char *fullcmd, int argc, char **argv) {
     return 0;
 }
 
+static int builtin_banner(char *fullcmd, int argc, char **argv) {
+    show_banner();
+    return 0;
+}
+
+static int builtin_getprop(char *fullcmd, int argc, char **argv) {
+    int offset = 0;
+    int nentries;
+    listdir_t dirs[8];
+
+    do {
+        nentries = listdir("/property/", offset, dirs, ARRAYSIZE(dirs));
+        if (nentries == 0) {
+            return 0;
+        }
+        if (nentries < 0) {
+            printf("Couldn't list '/property/' directory\n");
+            return -1;
+        }
+        offset += nentries;
+
+        int i;
+        for (i = 0; i < nentries; i++) {
+            if (strncmp(dirs[i].name, "..", 3) == 0) {
+                continue;
+            }
+
+            char buf[PROPERTY_VALUE_MAX_LEN] = { 0 };
+            if (get_property(dirs[i].name, buf) < 0) {
+                buf[0] = '?';
+            }
+            printf(COLOR_BLUE "%s" COLOR_RESTORE "=%s\n", dirs[i].name, buf);
+        }
+
+    } while (nentries == ARRAYSIZE(dirs));
+    return 0;
+}
+
 static int builtin_help(char *cmd, int argc, char **argv);
 
 // Null-terminated array of builtins
@@ -161,15 +243,43 @@ builtin_t BUILTINS[] = {
         .minargs = 1,
         .syntax = "xxd <file>",
     },
+    { .cmd = "run",
+        .handler = builtin_run,
+        .help = "Run executable",
+        .minargs = 1,
+        .syntax = "run <executable>",
+    },
+    { .cmd = "runbg",
+        .handler = builtin_runbg,
+        .help = "Run executable in the background",
+        .minargs = 1,
+        .syntax = "runbg <executable>",
+    },
+    { .cmd = "write",
+        .handler = builtin_write,
+        .help = "Write <data> into <file>",
+        .minargs = 2,
+        .syntax = "write <file> <data>",
+    },
     { .cmd = "cd",
         .handler = builtin_cd,
         .help = "Change the current directory to the given dir",
         .minargs = 1,
         .syntax = "cd <dir>",
     },
+    { .cmd = "mkdir",
+        .handler = builtin_mkdir,
+        .help = "Create directory",
+        .minargs = 1,
+        .syntax = "mkdir <dir>",
+    },
     { .cmd = "ls",
         .handler = builtin_ls,
         .help = "List directory contents",
+    },
+    { .cmd = "getprop",
+        .handler = builtin_getprop,
+        .help = "List properties and their values",
     },
     { .cmd = "pwd",
         .handler = builtin_pwd,
@@ -188,6 +298,10 @@ builtin_t BUILTINS[] = {
         .help = "Backdoor to access the kernel for CIA/debugging purposes",
         .minargs = 1,
         .syntax = "bd <command> [<param>]",
+    },
+    { .cmd = "banner",
+        .handler = builtin_banner,
+        .help = "Display a welcome message",
     },
     { .cmd = "exit",
         .handler = builtin_exit,

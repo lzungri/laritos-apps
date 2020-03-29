@@ -17,6 +17,7 @@ int main(void) {
         break;
     }
 
+    printf("Infinite loop...\n");
     while (1);
 
     return 0;
